@@ -1,5 +1,8 @@
-#include "SalesOrder.hpp"
 #include <iostream>
+#include "Order.hpp"
+#include "SalesOrder.hpp"
+using namespace SalesOrderNamespace;
+using namespace OrderNamespace;
 
 // SalesOrder constructor
 SalesOrder::SalesOrder(int documentNumber, const std::string &customer, const std::string &date, const std::string &currency) {
@@ -16,7 +19,7 @@ SalesOrder::SalesOrder(int documentNumber, const std::string &customer, const st
 // SalesOrder destructor
 SalesOrder::~SalesOrder() {
     std::cout << "\nSalesOrder Destructor called." << std::endl;
-
+    
     for (Item* item : items) {
         delete item;
     }
@@ -36,6 +39,25 @@ SalesOrder::SalesOrder(const SalesOrder &salesOrder) {
         Item* newItem = new Item{*item}; 
         items.push_back(newItem);
     }
+}
+
+// SalesOrder move constructor
+SalesOrder::SalesOrder(SalesOrder &&salesOrder) {
+    std::cout << "\nSalesOrder Move Constructor called." << std::endl;
+
+    this->documentNumber = salesOrder.documentNumber;
+    this->customer = std::move(salesOrder.customer);
+    this->date = std::move(salesOrder.date);
+    this->netValue = salesOrder.netValue;
+    this->currency = std::move(salesOrder.currency);
+    this->items = std::move(salesOrder.items);
+
+    salesOrder.documentNumber = 0;
+    salesOrder.customer.clear();
+    salesOrder.date.clear();
+    salesOrder.netValue = 0;
+    salesOrder.currency.clear();
+    salesOrder.items.clear();
 }
 
 // SalesOrder assignment operator
@@ -63,50 +85,32 @@ SalesOrder& SalesOrder::operator=(const SalesOrder &salesOrder) {
     return *this;
 }
 
+// Getters
+int SalesOrder::getDocumentNumber() const { return documentNumber; }
 
-int SalesOrder::getDocumentNumber() const {
-    return documentNumber;
-}
+std::string SalesOrder::getCustomer() const { return customer; }
 
-std::string SalesOrder::getCustomer() const {
-    return customer;
-}
+std::string SalesOrder::getDate() const { return date; }
 
-std::string SalesOrder::getDate() const {
-    return date;
-}
+double SalesOrder::getNetValue() const { return netValue; }
 
-double SalesOrder::getNetValue() const {
-    return netValue;
-}
+std::string SalesOrder::getCurrency() const { return currency; }
 
-std::string SalesOrder::getCurrency() const {
-    return currency;
-}
+const std::vector<Item*>& SalesOrder::getItems() const { return items; }
 
-const std::vector<Item*>& SalesOrder::getItems() const {
-    return items;
-}
+// Setters
+void SalesOrder::setDocumentNumber(int documentNumber) { this->documentNumber = documentNumber; }
 
-void SalesOrder::setDocumentNumber(int documentNumber) {
-    this->documentNumber = documentNumber;
-}
+void SalesOrder::setCustomer(const std::string &customer) { this->customer = customer; }
 
-void SalesOrder::setCustomer(const std::string &customer) {
-    this->customer = customer;
-}
+void SalesOrder::setDate(const std::string &date) { this->date = date; }
 
-void SalesOrder::setDate(const std::string &date) {
-    this->date = date;
-}
+void SalesOrder::setNetValue(double netValue) { this->netValue = netValue; }
 
-void SalesOrder::setNetValue(double netValue) {
-    this->netValue = netValue;
-}
+void SalesOrder::setCurrency(const std::string &currency) { this->currency = currency; }
 
-void SalesOrder::setCurrency(const std::string &currency) {
-    this->currency = currency;
-}
+void SalesOrder::setItems(const std::vector<Item*> &items){ this->items = items; }
+
 
 
 void SalesOrder::addItem(const Item &item) {
@@ -115,7 +119,6 @@ void SalesOrder::addItem(const Item &item) {
     items.push_back(newItem);
     netValue += item.quantity * item.netPrice;
 }
-
 
 void SalesOrder::deleteItem(const Item &item) {
  
@@ -131,7 +134,7 @@ void SalesOrder::deleteItem(const Item &item) {
     }
 }
 
-void SalesOrder::displaySalesOrder() const {
+void SalesOrder::displayOrder() const {
     
     std::cout << "Document Number:      " << documentNumber << std::endl;
     std::cout << "Customer:             " << customer << std::endl;
