@@ -5,4 +5,4 @@ target_include_directories(InternationalSalesOrder
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
-target_link_libraries(InternationalSalesOrder PUBLIC Order SalesOrder)
+target_link_libraries(InternationalSalesOrder PUBLIC Order)

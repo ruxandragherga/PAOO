@@ -1,58 +1,44 @@
 #include <iostream>
+#include "Order.hpp"
 #include "SalesOrder.hpp"
 #include "InternationalSalesOrder.hpp"
-using namespace SalesOrderNamespace;
-using namespace InternationalSalesOrderNamespace;
+#include "Category.hpp"
 
 int main() {
-    
-    SalesOrder order1(1, "CustomerA", "2023-10-30", "USD");
-    Item item1{"001", 2, 10.5};
-    Item item2{"002", 3, 7.8};
-    order1.addItem(item1);
-    order1.addItem(item2);
-    std::cout << "Order 1:" << std::endl;
-    order1.displayOrder();
+    Item item1{"001", 20, 10.5};
+    Item item2{"002", 30, 7.8};
+    Item item3{"003", 60, 15.8};
+    SalesOrderNamespace::SalesOrder salesOrder1(10001, "CustomerA", "2023-10-30", "USD");
+    salesOrder1.addItem(item1);
+    salesOrder1.addItem(item2);
+    SalesOrderNamespace::SalesOrder salesOrder2(10002, "CustomerB", "2023-11-15", "USD");
+    salesOrder2.addItem(item1);
+    InternationalSalesOrderNamespace::InternationalSalesOrder intSalesOrder1(20001, "CustomerC", "2023-03-01", "GBP", "UK", 30);
+    intSalesOrder1.addItem(item1);
+    intSalesOrder1.addItem(item2);
+    intSalesOrder1.addItem(item3);
+    InternationalSalesOrderNamespace::InternationalSalesOrder intSalesOrder2(20002, "CustomerD", "2023-04-01", "JPY", "Japan", 40);
+    intSalesOrder2.addItem(item2);
+    intSalesOrder2.addItem(item3);
 
+    salesOrder1.displayOrder();
+     std::cout << "------------------------------------\n";
+    salesOrder2.displayOrder();
+     std::cout << "------------------------------------\n";
+    intSalesOrder1.displayOrder();
+     std::cout << "------------------------------------\n";
+    intSalesOrder2.displayOrder();
+    std::cout << "------------------------------------\n";
 
-    SalesOrder order1Copy = order1;
-    std::cout << "\nCopied Order:" << std::endl;
-    order1Copy.displayOrder();
+    CategoryNamespace::Category<SalesOrderNamespace::SalesOrder> salesOrders("Sales Order");
+    salesOrders.addOrder(salesOrder1);
+    salesOrders.addOrder(salesOrder2);
+    CategoryNamespace::Category<InternationalSalesOrderNamespace::InternationalSalesOrder> intSalesOrders("International Order");
+    intSalesOrders.addOrder(intSalesOrder1);
+    intSalesOrders.addOrder(intSalesOrder2);
 
+    salesOrders.displayCategory();
+    intSalesOrders.displayCategory();
 
-    SalesOrder order2(2, "CustomerB", "2023-10-31", "EUR");
-    order2.displayOrder();
-    order2 = order1;
-    std::cout << "\nOrder 2:" << std::endl;
-    order2.displayOrder();
-
-
-    order1Copy.deleteItem(item1);
-    order2.deleteItem(item2);
-    std::cout << "\nOrder 1:" << std::endl;
-    order1.displayOrder();
-    std::cout << "\nOrder 1 copy:" << std::endl;
-    order1Copy.displayOrder();
-    std::cout << "\nOrder 2:" << std::endl;
-    order2.displayOrder();
-
-
-    SalesOrder movedOrder = std::move(order2);
-    std::cout << "\nMoved Order:" << std::endl;
-    movedOrder.displayOrder();
-    std::cout << "\nOriginal Order after Move:" << std::endl;
-    order2.displayOrder();
-
-
-    InternationalSalesOrder internationalSalesOrder(3, "CustomerC", "2023-11-05", "EUR", "Italy");
-    internationalSalesOrder.displayOrder();
-
-    Order *order4 = &order1;
-    Order *order5 = &internationalSalesOrder;
-    order5->addItem(item2);
-    order4->displayOrder();
-    order5->displayOrder();
-
-    
     return 0;
 }

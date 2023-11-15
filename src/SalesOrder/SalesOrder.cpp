@@ -1,5 +1,4 @@
 #include <iostream>
-#include "Order.hpp"
 #include "SalesOrder.hpp"
 using namespace SalesOrderNamespace;
 using namespace OrderNamespace;
@@ -13,16 +12,12 @@ SalesOrder::SalesOrder(int documentNumber, const std::string &customer, const st
     this->date = date;
     this->netValue = 0;
     this->currency = currency;
-    this->items = std::vector<Item*>();
+    this->items = std::vector<std::shared_ptr<Item>>();
 }
 
 // SalesOrder destructor
 SalesOrder::~SalesOrder() {
     std::cout << "\nSalesOrder Destructor called." << std::endl;
-    
-    for (Item* item : items) {
-        delete item;
-    }
 }
 
 // SalesOrder copy constructor
@@ -35,9 +30,8 @@ SalesOrder::SalesOrder(const SalesOrder &salesOrder) {
     this->netValue = salesOrder.netValue;
     this->currency = salesOrder.currency;
      
-    for (Item* item : salesOrder.items) {
-        Item* newItem = new Item{*item}; 
-        items.push_back(newItem);
+    for (const auto& item : salesOrder.items) {
+        items.push_back(std::make_shared<Item>(*item));
     }
 }
 
@@ -71,14 +65,8 @@ SalesOrder& SalesOrder::operator=(const SalesOrder &salesOrder) {
         this->netValue = salesOrder.netValue;
         this->currency = salesOrder.currency;
 
-        for (Item* item : items) {
-            delete item;
-        }
-        items.clear();
-
-        for (Item* item : salesOrder.items) {
-            Item* newItem = new Item{*item};  
-            items.push_back(newItem);
+        for (const auto& item : salesOrder.items) {
+            items.push_back(std::make_shared<Item>(*item)); 
         }
     }
 
@@ -87,50 +75,35 @@ SalesOrder& SalesOrder::operator=(const SalesOrder &salesOrder) {
 
 // Getters
 int SalesOrder::getDocumentNumber() const { return documentNumber; }
-
 std::string SalesOrder::getCustomer() const { return customer; }
-
 std::string SalesOrder::getDate() const { return date; }
-
 double SalesOrder::getNetValue() const { return netValue; }
-
 std::string SalesOrder::getCurrency() const { return currency; }
-
-const std::vector<Item*>& SalesOrder::getItems() const { return items; }
+const std::vector<std::shared_ptr<Item>>& SalesOrder::getItems() const { return items; }
 
 // Setters
 void SalesOrder::setDocumentNumber(int documentNumber) { this->documentNumber = documentNumber; }
-
 void SalesOrder::setCustomer(const std::string &customer) { this->customer = customer; }
-
 void SalesOrder::setDate(const std::string &date) { this->date = date; }
-
-void SalesOrder::setNetValue(double netValue) { this->netValue = netValue; }
-
 void SalesOrder::setCurrency(const std::string &currency) { this->currency = currency; }
-
-void SalesOrder::setItems(const std::vector<Item*> &items){ this->items = items; }
-
+void SalesOrder::setItems(const std::vector<std::shared_ptr<Item>> &items){ this->items = items; }
 
 
-void SalesOrder::addItem(const Item &item) {
-
-    Item* newItem = new Item{item}; 
+void SalesOrder::addItem(const Item& item) {
+    std::shared_ptr<Item> newItem = std::make_shared<Item>(item);
     items.push_back(newItem);
     netValue += item.quantity * item.netPrice;
 }
 
-void SalesOrder::deleteItem(const Item &item) {
- 
-    auto it = std::find_if(items.begin(), items.end(),
-                       [&item](const Item* currentItem) {
-                           return currentItem->itemNumber == item.itemNumber;
-                       });
+void SalesOrder::deleteItem(const Item& item) {
+    auto it = std::remove_if(items.begin(), items.end(),
+        [&item](const std::shared_ptr<Item>& currentItem) {
+            return currentItem->itemNumber == item.itemNumber;
+        });
 
     if (it != items.end()) {
         netValue -= (*it)->quantity * (*it)->netPrice;
-        delete *it;  
-        items.erase(it);  
+        items.erase(it);
     }
 }
 
@@ -143,7 +116,7 @@ void SalesOrder::displayOrder() const {
     std::cout << "Currency:             " << currency << std::endl;
 
     std::cout << "Items:" << std::endl;
-    for (const Item* item : items) {
+    for (const auto& item : items) {
         std::cout << "  Item Number: " << item->itemNumber << std::endl;
         std::cout << "  Quantity:    " << item->quantity << std::endl;
         std::cout << "  Net Price:   " << item->netPrice << std::endl;
